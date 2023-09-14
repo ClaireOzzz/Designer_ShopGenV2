@@ -20,6 +20,34 @@ if is_gpu_associated:
     else:
         which_gpu = "CPU"
 
+def swap_hardware(hf_token, hardware="cpu-basic"):
+    hardware_url = f"https://huggingface.co/spaces/{os.environ['SPACE_ID']}/hardware"
+    headers = { "authorization" : f"Bearer {hf_token}"}
+    body = {'flavor': hardware}
+    requests.post(hardware_url, json = body, headers=headers)
+
+def swap_sleep_time(hf_token,sleep_time):
+    sleep_time_url = f"https://huggingface.co/api/spaces/{os.environ['SPACE_ID']}/sleeptime"
+    headers = { "authorization" : f"Bearer {hf_token}"}
+    body = {'seconds':sleep_time}
+    requests.post(sleep_time_url,json=body,headers=headers)
+
+def get_sleep_time(hf_token):
+    sleep_time_url = f"https://huggingface.co/api/spaces/{os.environ['SPACE_ID']}"
+    headers = { "authorization" : f"Bearer {hf_token}"}
+    response = requests.get(sleep_time_url,headers=headers)
+    try:
+        gcTimeout = response.json()['runtime']['gcTimeout']
+    except:
+        gcTimeout = None
+    return gcTimeout
+
+def write_to_community(title, description,hf_token): 
+    from huggingface_hub import HfApi
+    api = HfApi()
+    api.create_discussion(repo_id=os.environ['SPACE_ID'], title=title, description=description,repo_type="space", token=hf_token)
+
+
 def set_accelerate_default_config():
     try:
         subprocess.run(["accelerate", "config", "default"], check=True)
@@ -84,6 +112,13 @@ def main(dataset_id,
          checkpoint_steps,
          remove_gpu):
 
+    
+    if is_shared_ui:
+        raise gr.Error("This Space only works in duplicated instances")
+
+    if not is_gpu_associated:
+        raise gr.Error("Please associate a T4 or A10G GPU for this Space")
+
     if dataset_id == "":
         raise gr.Error("You forgot to specify an image dataset")
 
@@ -92,12 +127,10 @@ def main(dataset_id,
 
     if lora_trained_xl_folder == "":
         raise gr.Error("You forgot to name the output folder for your model")
-    
-    if is_shared_ui:
-        raise gr.Error("This Space only works in duplicated instances")
 
-    if not is_gpu_associated:
-        raise gr.Error("Please associate a T4 or A10G GPU for this Space")
+    sleep_time = get_sleep_time(hf_token)
+        if sleep_time:
+            swap_sleep_time(hf_token, -1)
 
     gr.Warning("Training is ongoing ⌛... You can close this tab if you like or just wait.")
     gr.Warning("If you did not check the `Remove GPU After training`, don't forget to remove the GPU attribution after you are done. ")
