@@ -1,8 +1,8 @@
+--extra-index-url https://download.pytorch.org/whl/cu113
+torch==1.12.1+cu113
+torchvision==0.13.1+cu113
 xformers
 bitsandbytes
 transformers
 accelerate
---extra-index-url https://download.pytorch.org/whl/cu113
-torch==1.12.1+cu113
-torchvision==0.13.1+cu113
 git+https://github.com/huggingface/diffusers.git
