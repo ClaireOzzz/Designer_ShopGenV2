@@ -1352,7 +1352,7 @@ def main(args):
                 prompt=args.instance_prompt,
                 repo_folder=args.output_dir,
                 vae_path=args.pretrained_vae_model_name_or_path,
-                token=args.hub_token
+                
             )
             upload_folder(
                 repo_id=repo_id,
