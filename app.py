@@ -51,7 +51,7 @@ def train_dreambooth_lora_sdxl(instance_data_dir, lora_trained_xl_folder, instan
         print(f"An error occurred: {e}")
 
 def main(dataset_id, 
-         lora-trained-xl-folder,
+         lora_trained_xl_folder,
          instance_prompt,
          max_train_steps,
          checkpoint_steps):
