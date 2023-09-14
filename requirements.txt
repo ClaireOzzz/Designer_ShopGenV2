@@ -2,4 +2,6 @@ xformers
 bitsandbytes
 transformers
 accelerate
+torch
+torchvision
 git+https://github.com/huggingface/diffusers.git
