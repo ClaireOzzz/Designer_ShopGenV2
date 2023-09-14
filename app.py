@@ -1,6 +1,10 @@
 import gradio as gr
+import os
 import subprocess
 from huggingface_hub import snapshot_download
+
+hf_token = os.environ.get["HF_TOKEN"]
+print(hf_token)
 
 def set_accelerate_default_config():
     try:
@@ -60,6 +64,7 @@ def main(dataset_url):
         local_dir=local_dir,
         repo_type="dataset",
         ignore_patterns=".gitattributes",
+        token=hf_token
     )
 
     set_accelerate_default_config()
