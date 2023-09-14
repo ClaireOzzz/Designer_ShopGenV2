@@ -4,7 +4,7 @@ import subprocess
 from huggingface_hub import snapshot_download
 
 hf_token = os.environ.get("HF_TOKEN")
-print(hf_token)
+
 
 def set_accelerate_default_config():
     try:
@@ -13,7 +13,7 @@ def set_accelerate_default_config():
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-def train_dreambooth_lora_sdxl(instance_data_dir):
+def train_dreambooth_lora_sdxl(instance_data_dir, lora-trained-xl-folder, instance_prompt, max_train_steps, checkpoint_steps):
     
     script_filename = "train_dreambooth_lora_sdxl.py"  # Assuming it's in the same folder
 
@@ -24,9 +24,9 @@ def train_dreambooth_lora_sdxl(instance_data_dir):
         "--pretrained_model_name_or_path=stabilityai/stable-diffusion-xl-base-1.0",
         "--pretrained_vae_model_name_or_path=madebyollin/sdxl-vae-fp16-fix",
         f"--instance_data_dir={instance_data_dir}",
-        "--output_dir=lora-trained-xl-colab_2",
+        f"--output_dir={lora-trained-xl-folder}",
         "--mixed_precision=fp16",
-        "--instance_prompt=egnestl",
+        f"--instance_prompt={instance_prompt}",
         "--resolution=1024",
         "--train_batch_size=2",
         "--gradient_accumulation_steps=2",
@@ -37,8 +37,8 @@ def train_dreambooth_lora_sdxl(instance_data_dir):
         "--enable_xformers_memory_efficient_attention",
         "--mixed_precision=fp16",
         "--use_8bit_adam",
-        "--max_train_steps=25",
-        "--checkpointing_steps=717",
+        f"--max_train_steps={max_train_steps}",
+        f"--checkpointing_steps={checkpoint_steps}",
         "--seed=0",
         "--push_to_hub",
         f"--hub_token={hf_token}"
@@ -50,9 +50,13 @@ def train_dreambooth_lora_sdxl(instance_data_dir):
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-def main(dataset_url):
+def main(dataset_id, 
+         lora-trained-xl-folder,
+         instance_prompt,
+         max_train_steps,
+         checkpoint_steps):
 
-    dataset_repo = dataset_url
+    dataset_repo = dataset_id
 
     # Automatically set local_dir based on the last part of dataset_repo
     repo_parts = dataset_repo.split("/")
@@ -77,19 +81,30 @@ def main(dataset_url):
     gr.Info("Training begins ...")
 
     instance_data_dir = repo_parts[-1]
-    train_dreambooth_lora_sdxl(instance_data_dir)
+    train_dreambooth_lora_sdxl(instance_data_dir, lora-trained-xl-folder, instance_prompt, max_train_steps, checkpoint_steps)
 
-    return "Done"
+    return f"Done, your trained model has been stored in your models library: your_user_name/{lora-trained-xl-folder}"
 
 with gr.Blocks() as demo:
     with gr.Column():
-        dataset_id = gr.Textbox(label="Dataset ID")
+        dataset_id = gr.Textbox(label="Dataset ID", placeholder="diffusers/dog-example")
+        instance_prompt = gr.Textbox(label="Concept prompt", info="concept prompt - use a unique, made up word to avoid collisions")
+        model_output_folder = gr.Textbox(label="Output model folder name", placeholder="lora-trained-xl-folder")
+        with gr.Row():
+            max_train_steps = gr.Number(value=500)
+            checkpoint_steps = gr.Number(value=100)
         train_button = gr.Button("Train !")
         status = gr.Textbox(labe="Training status")
 
     train_button.click(
         fn = main,
-        inputs = [dataset_id],
+        inputs = [
+            dataset_id,
+            instance_prompt,
+            model_output_folder,
+            max_train_steps,
+            checkpoint_steps
+        ],
         outputs = [status]
     )
 
