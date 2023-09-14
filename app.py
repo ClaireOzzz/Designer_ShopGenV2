@@ -1,6 +1,7 @@
 import gradio as gr
 import torch
 import os
+import requests
 import subprocess
 from subprocess import getoutput
 from huggingface_hub import snapshot_download
