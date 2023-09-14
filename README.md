@@ -1,5 +1,5 @@
 ---
-title: Train Dreambooth Lora Sdxl
+title: Train Dreambooth LoRa Sd-XL
 emoji: 🏆
 colorFrom: red
 colorTo: red
