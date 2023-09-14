@@ -77,10 +77,10 @@ with gr.Blocks() as demo:
         train_button = gr.Button("Train !")
         status = gr.Textbox(labe="Training status")
 
-train_button.click(
-    fn = main,
-    inputs = [dataset_id],
-    outputs = [status]
-)
+    train_button.click(
+        fn = main,
+        inputs = [dataset_id],
+        outputs = [status]
+    )
 
 demo.queue().launch()
