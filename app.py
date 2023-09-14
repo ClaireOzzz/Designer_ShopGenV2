@@ -172,7 +172,7 @@ with gr.Blocks(css=css) as demo:
     with gr.Column(elem_id="col-container"):
         if is_shared_ui:
             top_description = gr.HTML(f'''
-                <div class="gr-prose" style="max-width: 80%">
+                <div class="gr-prose">
                 <h2>Attention - This Space doesn't work in this shared UI</h2>
                 <p>For it to work, you can duplicate the Space and run it on your own profile using a (paid) private T4-small or A10G-small GPU for training. A T4 costs US$0.60/h, so it should cost < US$1 to train most models using default settings with it!&nbsp;&nbsp;<a class="duplicate-button" style="display:inline-block" target="_blank" href="https://huggingface.co/spaces/{os.environ['SPACE_ID']}?duplicate=true"><img src="https://img.shields.io/badge/-Duplicate%20Space-blue?labelColor=white&style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAP5JREFUOE+lk7FqAkEURY+ltunEgFXS2sZGIbXfEPdLlnxJyDdYB62sbbUKpLbVNhyYFzbrrA74YJlh9r079973psed0cvUD4A+4HoCjsA85X0Dfn/RBLBgBDxnQPfAEJgBY+A9gALA4tcbamSzS4xq4FOQAJgCDwV2CPKV8tZAJcAjMMkUe1vX+U+SMhfAJEHasQIWmXNN3abzDwHUrgcRGmYcgKe0bxrblHEB4E/pndMazNpSZGcsZdBlYJcEL9Afo75molJyM2FxmPgmgPqlWNLGfwZGG6UiyEvLzHYDmoPkDDiNm9JR9uboiONcBXrpY1qmgs21x1QwyZcpvxt9NS09PlsPAAAAAElFTkSuQmCC&logoWidth=14" alt="Duplicate Space"></a></p>
                 </div>
@@ -180,14 +180,14 @@ with gr.Blocks(css=css) as demo:
         else:
             if(is_gpu_associated):
                 top_description = gr.HTML(f'''
-                        <div class="gr-prose" style="max-width: 80%">
+                        <div class="gr-prose">
                         <h2>You have successfully associated a {which_gpu} GPU to the SD-XL Dreambooth LoRa Training Space 🎉</h2>
                         <p>You can now train your model! You will be billed by the minute from when you activated the GPU until when it is turned it off.</p> 
                         </div>
                 ''')
             else:
                 top_description = gr.HTML(f'''
-                        <div class="gr-prose" style="max-width: 80%">
+                        <div class="gr-prose">
                         <h2>You have successfully duplicated the SD-XL Dreambooth LoRa Training Space 🎉</h2>
                         <p>There's only one step left before you can train your model: <a href="https://huggingface.co/spaces/{os.environ['SPACE_ID']}/settings" style="text-decoration: underline" target="_blank">attribute a <b>T4-small or A10G-small GPU</b> to it (via the Settings tab)</a> and run the training below. You will be billed by the minute from when you activate the GPU until when it is turned it off.</p> 
                         </div>
@@ -201,7 +201,7 @@ with gr.Blocks(css=css) as demo:
             model_output_folder = gr.Textbox(label="Output model folder name", placeholder="lora-trained-xl-folder")
             max_train_steps = gr.Number(label="Max Training Steps", value=500, precision=0, step=10)
             checkpoint_steps = gr.Number(label="Checkpoints Steps", value=100, precision=0, step=10)
-            remove_gpu = gr.Checkbox(label="Remove GPU After Training", value=True)
+        remove_gpu = gr.Checkbox(label="Remove GPU After Training", value=True)
         train_button = gr.Button("Train !")
 
         
