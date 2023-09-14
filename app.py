@@ -193,6 +193,7 @@ with gr.Blocks(css=css) as demo:
                         </div>
                 ''')
         gr.Markdown("# SD-XL Dreambooth LoRa Training UI 💭")
+        gr.Markdown("Find a dataset example here: [https://huggingface.co/datasets/diffusers/dog-example](https://huggingface.co/datasets/diffusers/dog-example) ;)")
         with gr.Row():
             dataset_id = gr.Textbox(label="Dataset ID", info="use one of your previously uploaded image datasets on your HF profile", placeholder="diffusers/dog-example")
             instance_prompt = gr.Textbox(label="Concept prompt", info="concept prompt - use a unique, made up word to avoid collisions")
