@@ -146,8 +146,9 @@ with gr.Blocks() as demo:
                         <p>There's only one step left before you can train your model: <a href="https://huggingface.co/spaces/{os.environ['SPACE_ID']}/settings" style="text-decoration: underline" target="_blank">attribute a <b>T4-small or A10G-small GPU</b> to it (via the Settings tab)</a> and run the training below. You will be billed by the minute from when you activate the GPU until when it is turned it off.</p> 
                         </div>
                 ''')
+        gr.Markdown("# SD-XL Dreambooth LoRa Training UI 💭")
         with gr.Row():
-            dataset_id = gr.Textbox(label="Dataset ID", info="use one of your previously uploaded datasets on your HF profile", placeholder="diffusers/dog-example")
+            dataset_id = gr.Textbox(label="Dataset ID", info="use one of your previously uploaded image datasets on your HF profile", placeholder="diffusers/dog-example")
             instance_prompt = gr.Textbox(label="Concept prompt", info="concept prompt - use a unique, made up word to avoid collisions")
         
         with gr.Row():
