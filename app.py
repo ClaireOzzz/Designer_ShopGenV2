@@ -3,7 +3,7 @@ import os
 import subprocess
 from huggingface_hub import snapshot_download
 
-hf_token = os.environ.get["HF_TOKEN"]
+hf_token = os.environ.get("HF_TOKEN")
 print(hf_token)
 
 def set_accelerate_default_config():
@@ -40,7 +40,8 @@ def train_dreambooth_lora_sdxl(instance_data_dir):
         "--max_train_steps=25",
         "--checkpointing_steps=717",
         "--seed=0",
-        "--push_to_hub"
+        "--push_to_hub",
+        f"--hub_token={hf_token}"
     ]
 
     try:
