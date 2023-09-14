@@ -103,8 +103,8 @@ def train_dreambooth_lora_sdxl(instance_data_dir, lora_trained_xl_folder, instan
         {str(e)}
         ```
         '''
-        swap_hardware(hf_token, "cpu-basic")
-        write_to_community(title,description,hf_token)
+        #swap_hardware(hf_token, "cpu-basic")
+        #write_to_community(title,description,hf_token)
 
 def main(dataset_id, 
          lora_trained_xl_folder,
@@ -133,7 +133,6 @@ def main(dataset_id,
     if sleep_time:
         swap_sleep_time(hf_token, -1)
 
-    
     gr.Warning("If you did not check the `Remove GPU After training`, don't forget to remove the GPU attribution after you are done. ")
         
     dataset_repo = dataset_id
@@ -163,7 +162,7 @@ def main(dataset_id,
     instance_data_dir = repo_parts[-1]
     train_dreambooth_lora_sdxl(instance_data_dir, lora_trained_xl_folder, instance_prompt, max_train_steps, checkpoint_steps, remove_gpu)
 
-    return f"Done, your trained model has been stored in your models library: your_user_name/{lora-trained-xl-folder}"
+    return f"Done, your trained model has been stored in your models library: your_user_name/{lora_trained_xl_folder}"
 
 css="""
 #col-container {max-width: 780px; margin-left: auto; margin-right: auto;}
@@ -199,8 +198,8 @@ with gr.Blocks(css=css) as demo:
         
         with gr.Row():
             model_output_folder = gr.Textbox(label="Output model folder name", placeholder="lora-trained-xl-folder")
-            max_train_steps = gr.Number(label="Max Training Steps", value=500)
-            checkpoint_steps = gr.Number(label="Checkpoints Steps", value=100)
+            max_train_steps = gr.Number(label="Max Training Steps", value=500, precision=0, step=10)
+            checkpoint_steps = gr.Number(label="Checkpoints Steps", value=100, precision=0, step=10)
             remove_gpu = gr.Checkbox(label="Remove GPU After Training", value=True)
         train_button = gr.Button("Train !")
 
