@@ -133,7 +133,7 @@ def main(dataset_id,
     if sleep_time:
         swap_sleep_time(hf_token, -1)
 
-    gr.Warning("Training is ongoing ⌛... You can close this tab if you like or just wait.")
+    
     gr.Warning("If you did not check the `Remove GPU After training`, don't forget to remove the GPU attribution after you are done. ")
         
     dataset_repo = dataset_id
