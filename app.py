@@ -65,7 +65,9 @@ def main(dataset_url):
     set_accelerate_default_config()
 
     gr.Info("Training begins ...")
-    train_dreambooth_lora_sdxl(instance_data_dir=repo_parts[-1])
+
+    instance_data_dir = repo_parts[-1]
+    train_dreambooth_lora_sdxl(instance_data_dir)
 
     return "Done"
 
