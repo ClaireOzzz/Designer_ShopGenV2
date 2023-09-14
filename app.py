@@ -24,7 +24,7 @@ def train_dreambooth_lora_sdxl(instance_data_dir):
         "--pretrained_model_name_or_path=stabilityai/stable-diffusion-xl-base-1.0",
         "--pretrained_vae_model_name_or_path=madebyollin/sdxl-vae-fp16-fix",
         f"--instance_data_dir={instance_data_dir}",
-        "--output_dir=lora-trained-xl-colab",
+        "--output_dir=lora-trained-xl-colab_2",
         "--mixed_precision=fp16",
         "--instance_prompt=egnestl",
         "--resolution=1024",
