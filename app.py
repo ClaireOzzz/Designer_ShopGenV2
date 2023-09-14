@@ -4,12 +4,13 @@ import os
 import requests
 import subprocess
 from subprocess import getoutput
-from huggingface_hub import snapshot_download
+from huggingface_hub import snapshot_download, HfApi
+
+api = HfApi()
 
 hf_token = os.environ.get("HF_TOKEN_WITH_WRITE_PERMISSION")
 
 is_shared_ui = True if "fffiloni/train-dreambooth-lora-sdxl" in os.environ['SPACE_ID'] else False
-
 
 is_gpu_associated = torch.cuda.is_available()
 if is_gpu_associated:
@@ -44,8 +45,7 @@ def get_sleep_time(hf_token):
     return gcTimeout
 
 def write_to_community(title, description,hf_token): 
-    from huggingface_hub import HfApi
-    api = HfApi()
+    
     api.create_discussion(repo_id=os.environ['SPACE_ID'], title=title, description=description,repo_type="space", token=hf_token)
 
 
@@ -161,8 +161,9 @@ def main(dataset_id,
 
     instance_data_dir = repo_parts[-1]
     train_dreambooth_lora_sdxl(instance_data_dir, lora_trained_xl_folder, instance_prompt, max_train_steps, checkpoint_steps, remove_gpu)
-
-    return f"Done, your trained model has been stored in your models library: your_user_name/{lora_trained_xl_folder}"
+    
+    your_username = api.whoami(token=hf_token)["name"]
+    return f"Done, your trained model has been stored in your models library: {your_username}/{lora_trained_xl_folder}"
 
 css="""
 #col-container {max-width: 780px; margin-left: auto; margin-right: auto;}
@@ -219,4 +220,4 @@ with gr.Blocks(css=css) as demo:
         outputs = [status]
     )
 
-demo.queue().launch()
+demo.queue(default_enabled=False).launch(debug=True)
