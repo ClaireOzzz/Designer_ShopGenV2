@@ -5,3 +5,4 @@ bitsandbytes
 transformers
 accelerate
 git+https://github.com/huggingface/diffusers.git
+scipy
