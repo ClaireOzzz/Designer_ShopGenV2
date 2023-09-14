@@ -87,12 +87,14 @@ def main(dataset_id,
 
 with gr.Blocks() as demo:
     with gr.Column():
-        dataset_id = gr.Textbox(label="Dataset ID", placeholder="diffusers/dog-example")
-        instance_prompt = gr.Textbox(label="Concept prompt", info="concept prompt - use a unique, made up word to avoid collisions")
-        model_output_folder = gr.Textbox(label="Output model folder name", placeholder="lora-trained-xl-folder")
         with gr.Row():
-            max_train_steps = gr.Number(value=500)
-            checkpoint_steps = gr.Number(value=100)
+            dataset_id = gr.Textbox(label="Dataset ID", info="use one of your previously uploaded datasets on your HF profile", placeholder="diffusers/dog-example")
+            instance_prompt = gr.Textbox(label="Concept prompt", info="concept prompt - use a unique, made up word to avoid collisions")
+        
+        with gr.Row():
+            model_output_folder = gr.Textbox(label="Output model folder name", placeholder="lora-trained-xl-folder")
+            max_train_steps = gr.Number(label="Max Training Steps", value=500)
+            checkpoint_steps = gr.Number(label="Checkpoints Steps", value=100)
         train_button = gr.Button("Train !")
         status = gr.Textbox(labe="Training status")
 
