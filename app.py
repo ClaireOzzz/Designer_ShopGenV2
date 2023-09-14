@@ -58,6 +58,10 @@ def main(dataset_url):
     repo_parts = dataset_repo.split("/")
     local_dir = f"./{repo_parts[-1]}"  # Use the last part of the split
 
+    # Check if the directory exists and create it if necessary
+    if not os.path.exists(local_dir):
+        os.makedirs(local_dir)
+
     gr.Info("Downloading dataset ...")
     
     snapshot_download(
