@@ -68,7 +68,7 @@ def train_dreambooth_lora_sdxl(instance_data_dir, lora_trained_xl_folder, instan
         
         title="There was an error on during your training"
         description=f'''
-        Unfortunately there was an error during training your {model_name} model. 
+        Unfortunately there was an error during training your {lora_trained_xl_folder} model. 
         Please check it out below. Feel free to report this issue to [SD-XL Dreambooth LoRa Training](https://huggingface.co/spaces/fffiloni/train-dreambooth-lora-sdxl): 
         ```
         {str(e)}
@@ -91,7 +91,8 @@ def main(dataset_id,
     if not is_gpu_associated:
         raise gr.Error("Please associate a T4 or A10G GPU for this Space")
 
-    gr.Warning("## Training is ongoing ⌛... You can close this tab if you like or just wait. If you did not check the `Remove GPU After training`, you can come back here to try your model and upload it after training. Don't forget to remove the GPU attribution after you are done. ")
+    gr.Warning("Training is ongoing ⌛... You can close this tab if you like or just wait.")
+    gr.Warning("If you did not check the `Remove GPU After training`, don't forget to remove the GPU attribution after you are done. ")
         
     dataset_repo = dataset_id
 
