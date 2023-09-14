@@ -84,7 +84,15 @@ def main(dataset_id,
          checkpoint_steps,
          remove_gpu):
 
+    if dataset_id == "":
+        raise gr.Error("You forgot to specify an image dataset")
 
+    if instance_prompt == "":
+        raise gr.Error("You forgot to specify a concept prompt")
+
+    if lora_trained_xl_folder == "":
+        raise gr.Error("You forgot to name the output folder for your model")
+    
     if is_shared_ui:
         raise gr.Error("This Space only works in duplicated instances")
 
