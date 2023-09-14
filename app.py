@@ -5,7 +5,7 @@ import subprocess
 from subprocess import getoutput
 from huggingface_hub import snapshot_download
 
-hf_token = os.environ.get("HF_TOKEN")
+hf_token = os.environ.get("HF_TOKEN_WITH_WRITE_PERMISSION")
 
 is_shared_ui = True if "fffiloni/train-dreambooth-lora-sdxl" in os.environ['SPACE_ID'] else False
 
@@ -123,8 +123,11 @@ def main(dataset_id,
 
     return f"Done, your trained model has been stored in your models library: your_user_name/{lora-trained-xl-folder}"
 
-with gr.Blocks() as demo:
-    with gr.Column():
+css="""
+#col-container {max-width: 780px; margin-left: auto; margin-right: auto;}
+"""
+with gr.Blocks(css=css) as demo:
+    with gr.Column(elem_id="col-container"):
         if is_shared_ui:
             top_description = gr.HTML(f'''
                 <div class="gr-prose" style="max-width: 80%">
