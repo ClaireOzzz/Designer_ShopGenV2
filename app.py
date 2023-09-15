@@ -1,11 +1,11 @@
 import gradio as gr
 import torch
 import os
+import shutil
 import requests
 import subprocess
 from subprocess import getoutput
-from huggingface_hub import snapshot_download, HfApi
-
+from huggingface_hub import snapshot_download, HfApi, create_repo
 api = HfApi()
 
 hf_token = os.environ.get("HF_TOKEN_WITH_WRITE_PERMISSION")
@@ -13,6 +13,7 @@ hf_token = os.environ.get("HF_TOKEN_WITH_WRITE_PERMISSION")
 is_shared_ui = True if "fffiloni/train-dreambooth-lora-sdxl" in os.environ['SPACE_ID'] else False
 
 is_gpu_associated = torch.cuda.is_available()
+
 if is_gpu_associated:
     gpu_info = getoutput('nvidia-smi')
     if("A10G" in gpu_info):
@@ -21,6 +22,47 @@ if is_gpu_associated:
         which_gpu = "T4"
     else:
         which_gpu = "CPU"
+
+def load_images_to_dataset(images, dataset_name):
+
+    if dataset_name == "":
+        raise gr.Error("You forgot to name your new dataset. ")
+
+    # Create the directory if it doesn't exist
+    my_working_directory = f"my_working_directory_for_{dataset_name}"
+    if not os.path.exists(my_working_directory):
+        os.makedirs(my_working_directory)
+
+    # Assuming 'images' is a list of image file paths
+    for idx, image in enumerate(images):
+        # Get the base file name (without path) from the original location
+        image_name = os.path.basename(image.name)
+    
+        # Construct the destination path in the working directory
+        destination_path = os.path.join(my_working_directory, image_name)
+    
+        # Copy the image from the original location to the working directory
+        shutil.copy(image.name, destination_path)
+    
+        # Print the image name and its corresponding save path
+        print(f"Image {idx + 1}: {image_name} copied to {destination_path}")
+   
+    path_to_folder = my_working_directory
+    your_username = api.whoami(token=hf_token)["name"]
+    repo_id = f"{your_username}/{dataset_name}"
+    create_repo(repo_id=repo_id, repo_type="dataset", private=True, token=hf_token)
+    
+    api.upload_folder(
+        folder_path=path_to_folder,
+        repo_id=repo_id,
+        repo_type="dataset",
+        token=hf_token
+    )
+
+    #print("pushing dataset to the hub")
+    #dataset.push_to_hub("fffiloni/new_dataset_eugene",  private=True, token=hf_token)
+    
+    return "Done, your dataset is ready and loaded for the training step!", repo_id
 
 def swap_hardware(hf_token, hardware="cpu-basic"):
     hardware_url = f"https://huggingface.co/spaces/{os.environ['SPACE_ID']}/hardware"
@@ -194,7 +236,15 @@ with gr.Blocks(css=css) as demo:
                         </div>
                 ''')
         gr.Markdown("# SD-XL Dreambooth LoRa Training UI 💭")
-        gr.Markdown("Find a dataset example here: [https://huggingface.co/datasets/diffusers/dog-example](https://huggingface.co/datasets/diffusers/dog-example) ;)")
+        gr.Markdown("## Drop your training images (optional)")
+        gr.Markdown("Use this step to upload your training images. If you already have a dataset stored on your HF profile, you can skip this step, and provide your dataset ID in the `Datased ID` input below.")
+        images = gr.File(file_types=["image"], label="Upload your images", file_count="multiple", interactive=True, visible=True)
+        with gr.Row():
+            new_dataset_name = gr.Textbox(label="Set new dataset name", placeholder="e.g.: my_awesome_dataset")
+            load_btn = gr.Button("Load images to new dataset")
+        dataset_status = gr.Textbox(label="dataset status")
+        gr.Markdown("## Training ")
+        gr.Markdown("You can use an existing image dataset, find a dataset example here: [https://huggingface.co/datasets/diffusers/dog-example](https://huggingface.co/datasets/diffusers/dog-example) ;)")
         with gr.Row():
             dataset_id = gr.Textbox(label="Dataset ID", info="use one of your previously uploaded image datasets on your HF profile", placeholder="diffusers/dog-example")
             instance_prompt = gr.Textbox(label="Concept prompt", info="concept prompt - use a unique, made up word to avoid collisions")
@@ -207,8 +257,14 @@ with gr.Blocks(css=css) as demo:
         train_button = gr.Button("Train !")
 
         
-        status = gr.Textbox(label="Training status")
-
+        train_status = gr.Textbox(label="Training status")
+    
+    load_btn.click(
+        fn = load_images_to_dataset,
+        inputs = [images, new_dataset_name],
+        outputs = [dataset_status, dataset_id]
+    )
+    
     train_button.click(
         fn = main,
         inputs = [
@@ -219,7 +275,7 @@ with gr.Blocks(css=css) as demo:
             checkpoint_steps,
             remove_gpu
         ],
-        outputs = [status]
+        outputs = [train_status]
     )
 
 demo.queue(default_enabled=False).launch(debug=True)
