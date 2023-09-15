@@ -90,7 +90,11 @@ inference: false
 
 These are LoRA adaption weights for {base_model}. 
 
-The weights were trained on the concept prompt: `{prompt}` using [DreamBooth](https://dreambooth.github.io/). 
+The weights were trained on the concept prompt: 
+
+`{prompt}`  
+
+Use this keyword to trigger your custom model in your prompts :) 
 
 LoRA for the text encoder was enabled: {train_text_encoder}.
 
@@ -114,7 +118,7 @@ To just use the base model, you can run:
 import torch
 from diffusers import DiffusionPipeline, AutoencoderKL
 
-vae = AutoencoderKL.from_pretrained({vae_path}, torch_dtype=torch.float16)
+vae = AutoencoderKL.from_pretrained('{vae_path}', torch_dtype=torch.float16)
 
 pipe = DiffusionPipeline.from_pretrained(
     "stabilityai/stable-diffusion-xl-base-1.0",
@@ -123,7 +127,7 @@ pipe = DiffusionPipeline.from_pretrained(
 )
 
 # This is where you load your trained weights
-pipe.load_lora_weights({repo_id})
+pipe.load_lora_weights('{repo_id}')
 
 pipe.to("cuda")
 
