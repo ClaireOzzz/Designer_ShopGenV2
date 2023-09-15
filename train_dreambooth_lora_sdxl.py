@@ -64,7 +64,7 @@ logger = get_logger(__name__)
 
 
 def save_model_card(
-    repo_id: str, images=None, base_model=str, train_text_encoder=False, prompt=str, repo_folder=None, vae_path=None
+    repo_id: str, images=None, dataset_id=str, base_model=str, train_text_encoder=False, prompt=str, repo_folder=None, vae_path=None
 ):
     img_str = ""
     for i, image in enumerate(images):
@@ -82,6 +82,8 @@ tags:
 - diffusers
 - lora
 inference: false
+datasets:
+- {dataset_id}
 ---
     """
     model_card = f"""
@@ -179,6 +181,13 @@ def parse_args(input_args=None):
         default=None,
         required=False,
         help="Revision of pretrained model identifier from huggingface.co/models.",
+    )
+    parser.add_argument(
+        "--dataset_id",
+        type=str,
+        default=None,
+        required=True,
+        help="The dataset ID you want to train images from",
     )
     parser.add_argument(
         "--instance_data_dir",
@@ -1386,6 +1395,7 @@ def main(args):
             save_model_card(
                 repo_id,
                 images=images,
+                dataset_id=args.dataset_id,
                 base_model=args.pretrained_model_name_or_path,
                 train_text_encoder=args.train_text_encoder,
                 prompt=args.instance_prompt,
