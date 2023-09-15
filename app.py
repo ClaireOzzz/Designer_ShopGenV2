@@ -56,7 +56,7 @@ def set_accelerate_default_config():
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-def train_dreambooth_lora_sdxl(instance_data_dir, lora_trained_xl_folder, instance_prompt, max_train_steps, checkpoint_steps, remove_gpu):
+def train_dreambooth_lora_sdxl(dataset_id, instance_data_dir, lora_trained_xl_folder, instance_prompt, max_train_steps, checkpoint_steps, remove_gpu):
     
     script_filename = "train_dreambooth_lora_sdxl.py"  # Assuming it's in the same folder
 
@@ -66,6 +66,7 @@ def train_dreambooth_lora_sdxl(instance_data_dir, lora_trained_xl_folder, instan
         script_filename,  # Use the local script
         "--pretrained_model_name_or_path=stabilityai/stable-diffusion-xl-base-1.0",
         "--pretrained_vae_model_name_or_path=madebyollin/sdxl-vae-fp16-fix",
+        f"--dataset_id={dataset_id}",
         f"--instance_data_dir={instance_data_dir}",
         f"--output_dir={lora_trained_xl_folder}",
         "--mixed_precision=fp16",
@@ -160,7 +161,7 @@ def main(dataset_id,
     gr.Info("Training begins ...")
 
     instance_data_dir = repo_parts[-1]
-    train_dreambooth_lora_sdxl(instance_data_dir, lora_trained_xl_folder, instance_prompt, max_train_steps, checkpoint_steps, remove_gpu)
+    train_dreambooth_lora_sdxl(dataset_id, instance_data_dir, lora_trained_xl_folder, instance_prompt, max_train_steps, checkpoint_steps, remove_gpu)
     
     your_username = api.whoami(token=hf_token)["name"]
     return f"Done, your trained model has been stored in your models library: {your_username}/{lora_trained_xl_folder}"
