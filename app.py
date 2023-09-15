@@ -237,7 +237,7 @@ with gr.Blocks(css=css) as demo:
                 ''')
         gr.Markdown("# SD-XL Dreambooth LoRa Training UI 💭")
         gr.Markdown("## Drop your training images (optional)")
-        gr.Markdown("Use this step to upload your training images. If you already have a dataset stored on your HF profile, you can skip this step, and provide your dataset ID in the `Datased ID` input below.")
+        gr.Markdown("Use this step to upload your training images. If you already have a dataset stored on your HF profile, you can skip this step, and provide your dataset ID in the training `Datased ID` input below.")
         images = gr.File(file_types=["image"], label="Upload your images", file_count="multiple", interactive=True, visible=True)
         with gr.Row():
             new_dataset_name = gr.Textbox(label="Set new dataset name", placeholder="e.g.: my_awesome_dataset")
