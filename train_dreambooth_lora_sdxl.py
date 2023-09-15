@@ -82,18 +82,55 @@ tags:
 - text-to-image
 - diffusers
 - lora
-inference: true
+inference: false
 ---
     """
     model_card = f"""
 # LoRA DreamBooth - {repo_id}
 
-These are LoRA adaption weights for {base_model}. The weights were trained on {prompt} using [DreamBooth](https://dreambooth.github.io/). You can find some example images in the following. \n
-{img_str}
+These are LoRA adaption weights for {base_model}. 
+
+The weights were trained on the concept prompt: `{prompt}` using [DreamBooth](https://dreambooth.github.io/). 
 
 LoRA for the text encoder was enabled: {train_text_encoder}.
 
 Special VAE used for training: {vae_path}.
+
+## Usage
+
+Make sure to upgrade diffusers to >= 0.19.0:
+```
+pip install diffusers --upgrade
+```
+
+In addition make sure to install transformers, safetensors, accelerate as well as the invisible watermark:
+```
+pip install invisible_watermark transformers accelerate safetensors
+```
+
+To just use the base model, you can run:
+
+```python
+import torch
+from diffusers import DiffusionPipeline, AutoencoderKL
+
+vae = AutoencoderKL.from_pretrained({vae_path}, torch_dtype=torch.float16)
+
+pipe = DiffusionPipeline.from_pretrained(
+    "stabilityai/stable-diffusion-xl-base-1.0",
+    vae=vae, torch_dtype=torch.float16, variant="fp16",
+    use_safetensors=True
+)
+
+# This is where you load your trained weights
+pipe.load_lora_weights({repo_id})
+
+pipe.to("cuda")
+
+prompt = "A majestic {prompt} jumping from a big stone at night"
+
+image = pipe(prompt=prompt, num_inference_steps=50).images[0]
+```
 """
     with open(os.path.join(repo_folder, "README.md"), "w") as f:
         f.write(yaml + model_card)
