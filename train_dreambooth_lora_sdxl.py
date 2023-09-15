@@ -73,7 +73,6 @@ def save_model_card(
 
     yaml = f"""
 ---
-license: openrail++
 base_model: {base_model}
 instance_prompt: {prompt}
 tags:
@@ -94,10 +93,9 @@ The weights were trained on the concept prompt:
 
 `{prompt}`  
 
-Use this keyword to trigger your custom model in your prompts :) 
+Use this keyword to trigger your custom model in your prompts. 
 
 LoRA for the text encoder was enabled: {train_text_encoder}.
-
 Special VAE used for training: {vae_path}.
 
 ## Usage
