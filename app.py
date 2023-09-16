@@ -23,6 +23,12 @@ if is_gpu_associated:
     else:
         which_gpu = "CPU"
 
+def check_upload_or_no(value):
+    if value is True:
+        return gr.update(visible=True)
+    else:
+        return gr.update(visible=False)
+
 def load_images_to_dataset(images, dataset_name):
 
     if dataset_name == "":
@@ -208,41 +214,117 @@ def main(dataset_id,
 
 css="""
 #col-container {max-width: 780px; margin-left: auto; margin-right: auto;}
+#upl-dataset-group {background-color: none!important;}
+
+div#warning-ready {
+    background-color: #ecfdf5;
+    padding: 0 10px 5px;
+    margin: 20px 0;
+}
+div#warning-ready > .gr-prose > h2, div#warning-ready > .gr-prose > p {
+    color: #057857!important;
+}
+
+div#warning-duplicate {
+    background-color: #ebf5ff;
+    padding: 0 10px 5px;
+    margin: 20px 0;
+}
+
+div#warning-duplicate > .gr-prose > h2, div#warning-duplicate > .gr-prose > p {
+    color: #0f4592!important;
+}
+
+div#warning-duplicate strong {
+    color: #0f4592;
+}
+
+p.actions {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+}
+
+div#warning-duplicate .actions a {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+div#warning-setgpu {
+    background-color: #fff4eb;
+    padding: 0 10px 5px;
+    margin: 20px 0;
+}
+
+div#warning-setgpu > .gr-prose > h2, div#warning-setgpu > .gr-prose > p {
+    color: #92220f!important;
+}
+
+div#warning-setgpu a, div#warning-setgpu b {
+    color: #91230f;
+}
+
+button#load-dataset-btn{
+min-height: 60px;
+}
 """
+
 with gr.Blocks(css=css) as demo:
     with gr.Column(elem_id="col-container"):
         if is_shared_ui:
             top_description = gr.HTML(f'''
                 <div class="gr-prose">
-                <h2>Attention - This Space doesn't work in this shared UI</h2>
-                <p>For it to work, you can duplicate the Space and run it on your own profile using a (paid) private T4-small or A10G-small GPU for training. A T4 costs US$0.60/h, so it should cost < US$1 to train most models using default settings with it!&nbsp;&nbsp;<a class="duplicate-button" style="display:inline-block" target="_blank" href="https://huggingface.co/spaces/{os.environ['SPACE_ID']}?duplicate=true"><img src="https://img.shields.io/badge/-Duplicate%20Space-blue?labelColor=white&style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAP5JREFUOE+lk7FqAkEURY+ltunEgFXS2sZGIbXfEPdLlnxJyDdYB62sbbUKpLbVNhyYFzbrrA74YJlh9r079973psed0cvUD4A+4HoCjsA85X0Dfn/RBLBgBDxnQPfAEJgBY+A9gALA4tcbamSzS4xq4FOQAJgCDwV2CPKV8tZAJcAjMMkUe1vX+U+SMhfAJEHasQIWmXNN3abzDwHUrgcRGmYcgKe0bxrblHEB4E/pndMazNpSZGcsZdBlYJcEL9Afo75molJyM2FxmPgmgPqlWNLGfwZGG6UiyEvLzHYDmoPkDDiNm9JR9uboiONcBXrpY1qmgs21x1QwyZcpvxt9NS09PlsPAAAAAElFTkSuQmCC&logoWidth=14" alt="Duplicate Space"></a></p>
+                    <h2><svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" style="margin-right: 0px;display: inline-block;"fill="none"><path fill="#fff" d="M7 13.2a6.3 6.3 0 0 0 4.4-10.7A6.3 6.3 0 0 0 .6 6.9 6.3 6.3 0 0 0 7 13.2Z"/><path fill="#fff" fill-rule="evenodd" d="M7 0a6.9 6.9 0 0 1 4.8 11.8A6.9 6.9 0 0 1 0 7 6.9 6.9 0 0 1 7 0Zm0 0v.7V0ZM0 7h.6H0Zm7 6.8v-.6.6ZM13.7 7h-.6.6ZM9.1 1.7c-.7-.3-1.4-.4-2.2-.4a5.6 5.6 0 0 0-4 1.6 5.6 5.6 0 0 0-1.6 4 5.6 5.6 0 0 0 1.6 4 5.6 5.6 0 0 0 4 1.7 5.6 5.6 0 0 0 4-1.7 5.6 5.6 0 0 0 1.7-4 5.6 5.6 0 0 0-1.7-4c-.5-.5-1.1-.9-1.8-1.2Z" clip-rule="evenodd"/><path fill="#000" fill-rule="evenodd" d="M7 2.9a.8.8 0 1 1 0 1.5A.8.8 0 0 1 7 3ZM5.8 5.7c0-.4.3-.6.6-.6h.7c.3 0 .6.2.6.6v3.7h.5a.6.6 0 0 1 0 1.3H6a.6.6 0 0 1 0-1.3h.4v-3a.6.6 0 0 1-.6-.7Z" clip-rule="evenodd"/></svg>
+                    Attention: this Space need to be duplicated to work</h2>
+                    <p class="main-message">
+                        To make it work, <strong>duplicate the Space</strong> and run it on your own profile using a <strong>private</strong> GPU (T4-small or A10G-small).<br />
+                        A T4 costs <strong>US$0.60/h</strong>, so it should cost < US$1 to train most models.
+                    </p>
+                    <p class="actions">
+                        <a href="https://huggingface.co/spaces/{os.environ['SPACE_ID']}?duplicate=true">
+                            <img src="https://huggingface.co/datasets/huggingface/badges/resolve/main/duplicate-this-space-lg-dark.svg" alt="Duplicate this Space" />
+                        </a>
+                        to start training your own image model
+                    </p>
                 </div>
-            ''')
+            ''', elem_id="warning-duplicate")
         else:
             if(is_gpu_associated):
                 top_description = gr.HTML(f'''
                         <div class="gr-prose">
-                        <h2>You have successfully associated a {which_gpu} GPU to the SD-XL Dreambooth LoRa Training Space 🎉</h2>
-                        <p>You can now train your model! You will be billed by the minute from when you activated the GPU until when it is turned it off.</p> 
+                            <h2><svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" style="margin-right: 0px;display: inline-block;"fill="none"><path fill="#fff" d="M7 13.2a6.3 6.3 0 0 0 4.4-10.7A6.3 6.3 0 0 0 .6 6.9 6.3 6.3 0 0 0 7 13.2Z"/><path fill="#fff" fill-rule="evenodd" d="M7 0a6.9 6.9 0 0 1 4.8 11.8A6.9 6.9 0 0 1 0 7 6.9 6.9 0 0 1 7 0Zm0 0v.7V0ZM0 7h.6H0Zm7 6.8v-.6.6ZM13.7 7h-.6.6ZM9.1 1.7c-.7-.3-1.4-.4-2.2-.4a5.6 5.6 0 0 0-4 1.6 5.6 5.6 0 0 0-1.6 4 5.6 5.6 0 0 0 1.6 4 5.6 5.6 0 0 0 4 1.7 5.6 5.6 0 0 0 4-1.7 5.6 5.6 0 0 0 1.7-4 5.6 5.6 0 0 0-1.7-4c-.5-.5-1.1-.9-1.8-1.2Z" clip-rule="evenodd"/><path fill="#000" fill-rule="evenodd" d="M7 2.9a.8.8 0 1 1 0 1.5A.8.8 0 0 1 7 3ZM5.8 5.7c0-.4.3-.6.6-.6h.7c.3 0 .6.2.6.6v3.7h.5a.6.6 0 0 1 0 1.3H6a.6.6 0 0 1 0-1.3h.4v-3a.6.6 0 0 1-.6-.7Z" clip-rule="evenodd"/></svg>
+                            You have successfully associated a {which_gpu} GPU to the SD-XL Training Space 🎉</h2>
+                            <p>
+                                You can now train your model! You will be billed by the minute from when you activated the GPU until when it is turned off.
+                            </p> 
                         </div>
-                ''')
+                ''', elem_id="warning-ready")
             else:
                 top_description = gr.HTML(f'''
                         <div class="gr-prose">
-                        <h2>You have successfully duplicated the SD-XL Dreambooth LoRa Training Space 🎉</h2>
-                        <p>There's only one step left before you can train your model: <a href="https://huggingface.co/spaces/{os.environ['SPACE_ID']}/settings" style="text-decoration: underline" target="_blank">attribute a <b>T4-small or A10G-small GPU</b> to it (via the Settings tab)</a> and run the training below. You will be billed by the minute from when you activate the GPU until when it is turned it off.</p> 
+                        <h2><svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" style="margin-right: 0px;display: inline-block;"fill="none"><path fill="#fff" d="M7 13.2a6.3 6.3 0 0 0 4.4-10.7A6.3 6.3 0 0 0 .6 6.9 6.3 6.3 0 0 0 7 13.2Z"/><path fill="#fff" fill-rule="evenodd" d="M7 0a6.9 6.9 0 0 1 4.8 11.8A6.9 6.9 0 0 1 0 7 6.9 6.9 0 0 1 7 0Zm0 0v.7V0ZM0 7h.6H0Zm7 6.8v-.6.6ZM13.7 7h-.6.6ZM9.1 1.7c-.7-.3-1.4-.4-2.2-.4a5.6 5.6 0 0 0-4 1.6 5.6 5.6 0 0 0-1.6 4 5.6 5.6 0 0 0 1.6 4 5.6 5.6 0 0 0 4 1.7 5.6 5.6 0 0 0 4-1.7 5.6 5.6 0 0 0 1.7-4 5.6 5.6 0 0 0-1.7-4c-.5-.5-1.1-.9-1.8-1.2Z" clip-rule="evenodd"/><path fill="#000" fill-rule="evenodd" d="M7 2.9a.8.8 0 1 1 0 1.5A.8.8 0 0 1 7 3ZM5.8 5.7c0-.4.3-.6.6-.6h.7c.3 0 .6.2.6.6v3.7h.5a.6.6 0 0 1 0 1.3H6a.6.6 0 0 1 0-1.3h.4v-3a.6.6 0 0 1-.6-.7Z" clip-rule="evenodd"/></svg>
+                        You have successfully duplicated the SD-XL Training Space 🎉</h2>
+                        <p>There's only one step left before you can train your model: <a href="https://huggingface.co/spaces/{os.environ['SPACE_ID']}/settings" style="text-decoration: underline" target="_blank">attribute a <b>T4-small or A10G-small GPU</b> to it (via the Settings tab)</a> and run the training below.
+                        You will be billed by the minute from when you activate the GPU until when it is turned off.</p> 
                         </div>
-                ''')
+                ''', elem_id="warning-setgpu")
+        
         gr.Markdown("# SD-XL Dreambooth LoRa Training UI 💭")
-        gr.Markdown("## Drop your training images (optional)")
-        gr.Markdown("Use this step to upload your training images. If you already have a dataset stored on your HF profile, you can skip this step, and provide your dataset ID in the training `Datased ID` input below.")
-        images = gr.File(file_types=["image"], label="Upload your images", file_count="multiple", interactive=True, visible=True)
-        with gr.Row():
-            new_dataset_name = gr.Textbox(label="Set new dataset name", placeholder="e.g.: my_awesome_dataset")
-            load_btn = gr.Button("Load images to new dataset")
-        dataset_status = gr.Textbox(label="dataset status")
+        
+        upload_my_images = gr.Checkbox(label="Drop your training images ? (optional)", value=False)
+        gr.Markdown("Use this step to upload your training images and create a new dataset. If you already have a dataset stored on your HF profile, you can skip this step, and provide your dataset ID in the training `Datased ID` input below.")
+         
+        with gr.Group(visible=False, elem_id="upl-dataset-group") as upload_group:
+            with gr.Row():
+                images = gr.File(file_types=["image"], label="Upload your images", file_count="multiple", interactive=True, visible=True)
+                with gr.Column():
+                    new_dataset_name = gr.Textbox(label="Set new dataset name", placeholder="e.g.: my_awesome_dataset")
+                    dataset_status = gr.Textbox(label="dataset status")
+                    load_btn = gr.Button("Load images to new dataset", elem_id="load-dataset-btn")
+        
         gr.Markdown("## Training ")
         gr.Markdown("You can use an existing image dataset, find a dataset example here: [https://huggingface.co/datasets/diffusers/dog-example](https://huggingface.co/datasets/diffusers/dog-example) ;)")
+        
         with gr.Row():
             dataset_id = gr.Textbox(label="Dataset ID", info="use one of your previously uploaded image datasets on your HF profile", placeholder="diffusers/dog-example")
             instance_prompt = gr.Textbox(label="Concept prompt", info="concept prompt - use a unique, made up word to avoid collisions")
@@ -251,11 +333,17 @@ with gr.Blocks(css=css) as demo:
             model_output_folder = gr.Textbox(label="Output model folder name", placeholder="lora-trained-xl-folder")
             max_train_steps = gr.Number(label="Max Training Steps", value=500, precision=0, step=10)
             checkpoint_steps = gr.Number(label="Checkpoints Steps", value=100, precision=0, step=10)
+
         remove_gpu = gr.Checkbox(label="Remove GPU After Training", value=True)
         train_button = gr.Button("Train !")
 
-        
         train_status = gr.Textbox(label="Training status")
+
+    upload_my_images.change(
+        fn = check_upload_or_no,
+        inputs =[upload_my_images],
+        outputs = [upload_group]        
+    )
     
     load_btn.click(
         fn = load_images_to_dataset,
