@@ -31,6 +31,9 @@ def check_upload_or_no(value):
 
 def load_images_to_dataset(images, dataset_name):
 
+    if is_shared_ui:
+        raise gr.Error("This Space only works in duplicated instances")
+
     if dataset_name == "":
         raise gr.Error("You forgot to name your new dataset. ")
 
