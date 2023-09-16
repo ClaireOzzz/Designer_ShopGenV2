@@ -59,9 +59,6 @@ def load_images_to_dataset(images, dataset_name):
         token=hf_token
     )
 
-    #print("pushing dataset to the hub")
-    #dataset.push_to_hub("fffiloni/new_dataset_eugene",  private=True, token=hf_token)
-    
     return "Done, your dataset is ready and loaded for the training step!", repo_id
 
 def swap_hardware(hf_token, hardware="cpu-basic"):
