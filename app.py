@@ -143,7 +143,8 @@ def train_dreambooth_lora_sdxl(dataset_id, instance_data_dir, lora_trained_xl_fo
         {str(e)}
         ```
         '''
-        #swap_hardware(hf_token, "cpu-basic")
+        if remove_gpu:
+            swap_hardware(hf_token, "cpu-basic")
         #write_to_community(title,description,hf_token)
 
 def main(dataset_id, 
