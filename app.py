@@ -267,6 +267,17 @@ div#warning-setgpu a, div#warning-setgpu b {
     color: #91230f;
 }
 
+div#warning-setgpu p.actions > a {
+    display: inline-block;
+    background: #1f1f23;
+    border-radius: 40px;
+    padding: 6px 24px;
+    color: antiquewhite;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.2em;
+}
+
 button#load-dataset-btn{
 min-height: 60px;
 }
@@ -309,6 +320,9 @@ with gr.Blocks(css=css) as demo:
                         You have successfully duplicated the SD-XL Training Space 🎉</h2>
                         <p>There's only one step left before you can train your model: <a href="https://huggingface.co/spaces/{os.environ['SPACE_ID']}/settings" style="text-decoration: underline" target="_blank">attribute a <b>T4-small or A10G-small GPU</b> to it (via the Settings tab)</a> and run the training below.
                         You will be billed by the minute from when you activate the GPU until when it is turned off.</p> 
+                        <p class="actions">
+                            <a href="https://huggingface.co/spaces/{os.environ['SPACE_ID']}/settings">🔥 &nbsp; Set recommended GPU</a>
+                        </p>
                         </div>
                 ''', elem_id="warning-setgpu")
         
