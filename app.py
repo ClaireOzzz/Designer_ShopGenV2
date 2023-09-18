@@ -141,6 +141,8 @@ def train_dreambooth_lora_sdxl(dataset_id, instance_data_dir, lora_trained_xl_fo
         print("Training is finished!")
         if remove_gpu:
             swap_hardware(hf_token, "cpu-basic")
+        else:
+            swap_sleep_time(hf_token, 300)
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
         
@@ -154,6 +156,8 @@ def train_dreambooth_lora_sdxl(dataset_id, instance_data_dir, lora_trained_xl_fo
         '''
         if remove_gpu:
             swap_hardware(hf_token, "cpu-basic")
+        else:
+            swap_sleep_time(hf_token, 300)
         #write_to_community(title,description,hf_token)
 
 def main(dataset_id, 
@@ -351,7 +355,7 @@ with gr.Blocks(css=css) as demo:
             max_train_steps = gr.Number(label="Max Training Steps", value=500, precision=0, step=10)
             checkpoint_steps = gr.Number(label="Checkpoints Steps", value=100, precision=0, step=10)
 
-        remove_gpu = gr.Checkbox(label="Remove GPU After Training", value=True)
+        remove_gpu = gr.Checkbox(label="Remove GPU After Training", value=True, info="If NOT enabled, don't forget to remove the GPU attribution after you are done.")
         train_button = gr.Button("Train !")
 
         train_status = gr.Textbox(label="Training status")
@@ -381,4 +385,4 @@ with gr.Blocks(css=css) as demo:
         outputs = [train_status]
     )
 
-demo.queue(default_enabled=False).launch(debug=True)
+demo.launch(debug=True)
