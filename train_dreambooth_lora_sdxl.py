@@ -90,7 +90,7 @@ Last checkpoint saved: {last_checkpoint}
 
 These are LoRA adaption weights for {base_model}. 
 
-The weights were trained on the concept prompt: 
+The weights is currently trained on the concept prompt: 
 ```
 {prompt}
 ```
@@ -157,7 +157,7 @@ datasets:
     model_card = f"""
 # LoRA DreamBooth - {repo_id}
 
-These are LoRA adaption weights for {base_model}. 
+These are LoRA adaption weights for {base_model} trained on @fffiloni's SD-XL trainer. 
 
 The weights were trained on the concept prompt: 
 ```
@@ -166,6 +166,7 @@ The weights were trained on the concept prompt:
 Use this keyword to trigger your custom model in your prompts. 
 
 LoRA for the text encoder was enabled: {train_text_encoder}.
+
 Special VAE used for training: {vae_path}.
 
 ## Usage
@@ -186,6 +187,8 @@ To just use the base model, you can run:
 import torch
 from diffusers import DiffusionPipeline, AutoencoderKL
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
 vae = AutoencoderKL.from_pretrained('{vae_path}', torch_dtype=torch.float16)
 
 pipe = DiffusionPipeline.from_pretrained(
@@ -194,14 +197,26 @@ pipe = DiffusionPipeline.from_pretrained(
     use_safetensors=True
 )
 
-pipe.to("cuda")
+pipe.to(device)
 
 # This is where you load your trained weights
-pipe.load_lora_weights('{repo_id}')
+
+specific_safetensors = "pytorch_lora_weights.safetensors"
+lora_scale = 0.9
+
+pipe.load_lora_weights(
+    '{repo_id}', 
+    weight_name = specific_safetensors,
+    # use_auth_token = True 
+)
 
 prompt = "A majestic {prompt} jumping from a big stone at night"
 
-image = pipe(prompt=prompt, num_inference_steps=50).images[0]
+image = pipe(
+    prompt=prompt, 
+    num_inference_steps=50,
+    cross_attention_kwargs=\{"scale": lora_scale\}
+).images[0]
 ```
 """
     with open(os.path.join(repo_folder, "README.md"), "w") as f:
