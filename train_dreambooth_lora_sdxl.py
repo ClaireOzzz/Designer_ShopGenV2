@@ -215,7 +215,7 @@ prompt = "A majestic {prompt} jumping from a big stone at night"
 image = pipe(
     prompt=prompt, 
     num_inference_steps=50,
-    cross_attention_kwargs=\{"scale": lora_scale\}
+    cross_attention_kwargs={{"scale": lora_scale}}
 ).images[0]
 ```
 """
