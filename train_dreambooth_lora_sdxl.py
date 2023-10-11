@@ -13,7 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 
-import gradio as gr
 import argparse
 import gc
 import hashlib
@@ -59,14 +58,14 @@ from diffusers.utils.import_utils import is_xformers_available
 
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
-check_min_version("0.21.0.dev0")
+check_min_version("0.22.0.dev0")
 
 logger = get_logger(__name__)
 
 def save_tempo_model_card(
     repo_id: str, dataset_id=str, base_model=str, train_text_encoder=False, prompt=str, repo_folder=None, vae_path=None, last_checkpoint=str
 ):
-    
+
     yaml = f"""
 ---
 base_model: {base_model}
@@ -84,24 +83,17 @@ datasets:
     """
     model_card = f"""
 # LoRA DreamBooth - {repo_id}
-
 ## MODEL IS CURRENTLY TRAINING ...
 Last checkpoint saved: {last_checkpoint}
-
-These are LoRA adaption weights for {base_model}. 
-
-The weights is currently trained on the concept prompt: 
+These are LoRA adaption weights for {base_model} trained on @fffiloni's SD-XL trainer. 
+The weights were trained on the concept prompt: 
 ```
 {prompt}
-```
+```  
 Use this keyword to trigger your custom model in your prompts. 
-
 LoRA for the text encoder was enabled: {train_text_encoder}.
-
 Special VAE used for training: {vae_path}.
-
 ## Usage
-
 Make sure to upgrade diffusers to >= 0.19.0:
 ```
 pip install diffusers --upgrade
@@ -114,18 +106,28 @@ To just use the base model, you can run:
 ```python
 import torch
 from diffusers import DiffusionPipeline, AutoencoderKL
+device = "cuda" if torch.cuda.is_available() else "cpu"
 vae = AutoencoderKL.from_pretrained('{vae_path}', torch_dtype=torch.float16)
 pipe = DiffusionPipeline.from_pretrained(
     "stabilityai/stable-diffusion-xl-base-1.0",
     vae=vae, torch_dtype=torch.float16, variant="fp16",
     use_safetensors=True
 )
-pipe.to("cuda")
+pipe.to(device)
 # This is where you load your trained weights
-pipe.load_lora_weights('{repo_id}')
-
+specific_safetensors = "pytorch_lora_weights.safetensors"
+lora_scale = 0.9
+pipe.load_lora_weights(
+    '{repo_id}', 
+    weight_name = specific_safetensors,
+    # use_auth_token = True 
+)
 prompt = "A majestic {prompt} jumping from a big stone at night"
-image = pipe(prompt=prompt, num_inference_steps=50).images[0]
+image = pipe(
+    prompt=prompt, 
+    num_inference_steps=50,
+    cross_attention_kwargs={{"scale": lora_scale}}
+).images[0]
 ```
 """
     with open(os.path.join(repo_folder, "README.md"), "w") as f:
@@ -156,62 +158,44 @@ datasets:
     """
     model_card = f"""
 # LoRA DreamBooth - {repo_id}
-
 These are LoRA adaption weights for {base_model} trained on @fffiloni's SD-XL trainer. 
-
 The weights were trained on the concept prompt: 
 ```
 {prompt}
 ```  
 Use this keyword to trigger your custom model in your prompts. 
-
 LoRA for the text encoder was enabled: {train_text_encoder}.
-
 Special VAE used for training: {vae_path}.
-
 ## Usage
-
 Make sure to upgrade diffusers to >= 0.19.0:
 ```
 pip install diffusers --upgrade
 ```
-
 In addition make sure to install transformers, safetensors, accelerate as well as the invisible watermark:
 ```
 pip install invisible_watermark transformers accelerate safetensors
 ```
-
 To just use the base model, you can run:
-
 ```python
 import torch
 from diffusers import DiffusionPipeline, AutoencoderKL
-
 device = "cuda" if torch.cuda.is_available() else "cpu"
-
 vae = AutoencoderKL.from_pretrained('{vae_path}', torch_dtype=torch.float16)
-
 pipe = DiffusionPipeline.from_pretrained(
     "stabilityai/stable-diffusion-xl-base-1.0",
     vae=vae, torch_dtype=torch.float16, variant="fp16",
     use_safetensors=True
 )
-
 pipe.to(device)
-
 # This is where you load your trained weights
-
 specific_safetensors = "pytorch_lora_weights.safetensors"
 lora_scale = 0.9
-
 pipe.load_lora_weights(
     '{repo_id}', 
     weight_name = specific_safetensors,
     # use_auth_token = True 
 )
-
 prompt = "A majestic {prompt} jumping from a big stone at night"
-
 image = pipe(
     prompt=prompt, 
     num_inference_steps=50,
@@ -809,7 +793,7 @@ def main(args):
 
         if args.push_to_hub:
             repo_id = create_repo(
-                repo_id=args.hub_model_id or Path(args.output_dir).name, exist_ok=True, private=True, token=args.hub_token
+                repo_id=args.hub_model_id or Path(args.output_dir).name, exist_ok=True, token=args.hub_token
             ).repo_id
 
     # Load the tokenizers
@@ -1150,7 +1134,6 @@ def main(args):
         accelerator.init_trackers("dreambooth-lora-sd-xl", config=vars(args))
 
     # Train!
-    gr.Info("Training Starts now")
     total_batch_size = args.train_batch_size * accelerator.num_processes * args.gradient_accumulation_steps
 
     logger.info("***** Running training *****")
@@ -1180,34 +1163,34 @@ def main(args):
                 f"Checkpoint '{args.resume_from_checkpoint}' does not exist. Starting a new training run."
             )
             args.resume_from_checkpoint = None
+            initial_global_step = 0
         else:
             accelerator.print(f"Resuming from checkpoint {path}")
             accelerator.load_state(os.path.join(args.output_dir, path))
             global_step = int(path.split("-")[1])
 
-            resume_global_step = global_step * args.gradient_accumulation_steps
+            initial_global_step = global_step
             first_epoch = global_step // num_update_steps_per_epoch
-            resume_step = resume_global_step % (num_update_steps_per_epoch * args.gradient_accumulation_steps)
 
-    # Only show the progress bar once on each machine.
-    progress_bar = tqdm(range(global_step, args.max_train_steps), disable=not accelerator.is_local_main_process)
-    progress_bar.set_description("Steps")
+    else:
+        initial_global_step = 0
+
+    progress_bar = tqdm(
+        range(0, args.max_train_steps),
+        initial=initial_global_step,
+        desc="Steps",
+        # Only show the progress bar once on each machine.
+        disable=not accelerator.is_local_main_process,
+    )
 
     for epoch in range(first_epoch, args.num_train_epochs):
         # Print a message for each epoch
         print(f"Epoch {epoch}: Training in progress...")
-        
         unet.train()
         if args.train_text_encoder:
             text_encoder_one.train()
             text_encoder_two.train()
         for step, batch in enumerate(train_dataloader):
-            # Skip steps until we reach the resumed step
-            if args.resume_from_checkpoint and epoch == first_epoch and step < resume_step:
-                if step % args.gradient_accumulation_steps == 0:
-                    progress_bar.update(1)    
-                continue
-
             with accelerator.accumulate(unet):
                 pixel_values = batch["pixel_values"].to(dtype=vae.dtype)
 
@@ -1329,7 +1312,6 @@ def main(args):
                         accelerator.save_state(save_path)
                         logger.info(f"Saved state to {save_path}")
 
-                        gr.Info(f"Saving checkpoint-{global_step} to {repo_id}")
                         save_tempo_model_card(
                             repo_id,
                             dataset_id=args.dataset_id,
@@ -1352,9 +1334,7 @@ def main(args):
             logs = {"loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}
             progress_bar.set_postfix(**logs)
             accelerator.log(logs, step=global_step)
-            
-              
-            
+
             if global_step >= args.max_train_steps:
                 break
 
@@ -1512,7 +1492,6 @@ def main(args):
                 prompt=args.instance_prompt,
                 repo_folder=args.output_dir,
                 vae_path=args.pretrained_vae_model_name_or_path,
-                
             )
             upload_folder(
                 repo_id=repo_id,
@@ -1523,7 +1502,6 @@ def main(args):
             )
 
     accelerator.end_training()
-
 
 if __name__ == "__main__":
     args = parse_args()
