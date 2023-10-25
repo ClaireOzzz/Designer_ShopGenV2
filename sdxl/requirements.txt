@@ -1,0 +1,8 @@
+torch==2.0.1
+torchvision==0.15.2
+invisible_watermark
+accelerate
+transformers
+safetensors
+opencv-python
+git+https://github.com/huggingface/diffusers.git
