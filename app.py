@@ -5,14 +5,21 @@ import shutil
 import requests
 import subprocess
 from subprocess import getoutput
-from huggingface_hub import snapshot_download, HfApi, create_repo
-api = HfApi()
+from huggingface_hub import login, HfFileSystem, snapshot_download, HfApi, create_repo
+#api = HfApi()
 
-hf_token = os.environ.get("HF_TOKEN_WITH_WRITE_PERMISSION")
+#hf_token = os.environ.get("HF_TOKEN_WITH_WRITE_PERMISSION")
 
-is_shared_ui = True if "fffiloni/train-dreambooth-lora-sdxl" in os.environ['SPACE_ID'] else False
+#is_shared_ui = True if "fffiloni/train-dreambooth-lora-sdxl" in os.environ['SPACE_ID'] else False
 
 is_gpu_associated = torch.cuda.is_available()
+
+is_shared_ui = False
+
+hf_token = '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'
+
+fs = HfFileSystem(token=hf_token)
+api = HfApi()
 
 if is_gpu_associated:
     gpu_info = getoutput('nvidia-smi')
@@ -59,7 +66,7 @@ def load_images_to_dataset(images, dataset_name):
     path_to_folder = my_working_directory
     your_username = api.whoami(token=hf_token)["name"]
     repo_id = f"{your_username}/{dataset_name}"
-    create_repo(repo_id=repo_id, repo_type="dataset", private=True, token=hf_token)
+    create_repo(repo_id=repo_id, repo_type="dataset", token=hf_token)
     
     api.upload_folder(
         folder_path=path_to_folder,
@@ -71,19 +78,19 @@ def load_images_to_dataset(images, dataset_name):
     return "Done, your dataset is ready and loaded for the training step!", repo_id
 
 def swap_hardware(hf_token, hardware="cpu-basic"):
-    hardware_url = f"https://huggingface.co/spaces/{os.environ['SPACE_ID']}/hardware"
+    hardware_url = f"https://huggingface.co/spaces/ClaireOzzz/train-dreambooth-lora-sdxl/hardware"
     headers = { "authorization" : f"Bearer {hf_token}"}
     body = {'flavor': hardware}
     requests.post(hardware_url, json = body, headers=headers)
 
 def swap_sleep_time(hf_token,sleep_time):
-    sleep_time_url = f"https://huggingface.co/api/spaces/{os.environ['SPACE_ID']}/sleeptime"
+    sleep_time_url = f"https://huggingface.co/api/spaces/ClaireOzzz/train-dreambooth-lora-sdxl/sleeptime"
     headers = { "authorization" : f"Bearer {hf_token}"}
     body = {'seconds':sleep_time}
     requests.post(sleep_time_url,json=body,headers=headers)
 
 def get_sleep_time(hf_token):
-    sleep_time_url = f"https://huggingface.co/api/spaces/{os.environ['SPACE_ID']}"
+    sleep_time_url = f"https://huggingface.co/api/spaces/ClaireOzzz/train-dreambooth-lora-sdxl"
     headers = { "authorization" : f"Bearer {hf_token}"}
     response = requests.get(sleep_time_url,headers=headers)
     try:
@@ -94,7 +101,7 @@ def get_sleep_time(hf_token):
 
 def write_to_community(title, description,hf_token): 
     
-    api.create_discussion(repo_id=os.environ['SPACE_ID'], title=title, description=description,repo_type="space", token=hf_token)
+    api.create_discussion(repo_id=os.environ['ClaireOzzz/train-dreambooth-lora-sdxl'], title=title, description=description,repo_type="space", token=hf_token)
 
 
 def set_accelerate_default_config():
@@ -299,9 +306,7 @@ with gr.Blocks(css=css) as demo:
                         A T4 costs <strong>US$0.60/h</strong>, so it should cost < US$1 to train most models.
                     </p>
                     <p class="actions">
-                        <a href="https://huggingface.co/spaces/{os.environ['SPACE_ID']}?duplicate=true">
-                            <img src="https://huggingface.co/datasets/huggingface/badges/resolve/main/duplicate-this-space-lg-dark.svg" alt="Duplicate this Space" />
-                        </a>
+                       
                         to start training your own image model
                     </p>
                 </div>
@@ -325,7 +330,7 @@ with gr.Blocks(css=css) as demo:
                         <p>There's only one step left before you can train your model: <a href="https://huggingface.co/spaces/{os.environ['SPACE_ID']}/settings" style="text-decoration: underline" target="_blank">attribute a <b>T4-small or A10G-small GPU</b> to it (via the Settings tab)</a> and run the training below.
                         You will be billed by the minute from when you activate the GPU until when it is turned off.</p> 
                         <p class="actions">
-                            <a href="https://huggingface.co/spaces/{os.environ['SPACE_ID']}/settings">🔥 &nbsp; Set recommended GPU</a>
+                            <a href="https://huggingface.co/spaces/ClaireOzzz/train-dreambooth-lora-sdxl/settings">🔥 &nbsp; Set recommended GPU</a>
                         </p>
                         </div>
                 ''', elem_id="warning-setgpu")
@@ -385,4 +390,4 @@ with gr.Blocks(css=css) as demo:
         outputs = [train_status]
     )
 
-demo.launch(debug=True)
+demo.launch(debug=True, share=True)
