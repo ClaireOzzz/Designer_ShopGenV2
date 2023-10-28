@@ -9,6 +9,7 @@ from huggingface_hub import login, HfFileSystem, snapshot_download, HfApi, creat
 
 from app_train import create_training_demo
 from sdxl.app_inference import create_inference_demo
+from depthgltf.app_visualisation import create_visual_demo 
 
 css="""
 #col-container {max-width: 780px; margin-left: auto; margin-right: auto;}
@@ -86,9 +87,7 @@ with gr.Blocks(css=css) as demo:
     with gr.Tab("Generation"):
         create_inference_demo()
     with gr.Tab("Visualisation"):
-        gr.Markdown('''
-            - You can use this tab to upload models later if you choose not to upload models in training time or if upload in training time failed.
-            ''')
+        create_visual_demo(); 
 
 
 demo.queue(max_size=1).launch(debug=True, share=True)
