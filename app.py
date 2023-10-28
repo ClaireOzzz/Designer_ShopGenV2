@@ -6,10 +6,17 @@ import requests
 import subprocess
 from subprocess import getoutput
 from huggingface_hub import login, HfFileSystem, snapshot_download, HfApi, create_repo
+from pathlib import Path
+from PIL import Image
 
 from app_train import create_training_demo
 from sdxl.app_inference import create_inference_demo
 from depthgltf.app_visualisation import create_visual_demo 
+
+from transformers import DPTFeatureExtractor, DPTForDepthEstimation
+import numpy as np
+import open3d as o3d
+
 
 css="""
 #col-container {max-width: 780px; margin-left: auto; margin-right: auto;}
@@ -79,6 +86,7 @@ min-height: 60px;
 }
 """
 
+
 with gr.Blocks(css=css) as demo:
 
     gr.Markdown("SUTD x SUNS Shop Design Generator")
@@ -86,8 +94,11 @@ with gr.Blocks(css=css) as demo:
          create_training_demo()
     with gr.Tab("Generation"):
         create_inference_demo()
+       
+        #create_visual_demo(); 
     with gr.Tab("Visualisation"):
         create_visual_demo(); 
 
 
-demo.queue(max_size=1).launch(debug=True, share=True)
+demo.queue().launch(debug=True, share=True)
+
