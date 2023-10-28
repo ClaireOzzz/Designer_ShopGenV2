@@ -100,21 +100,34 @@ def create_3d_obj(rgb_image, depth_image, image_path, depth=10):
     return gltf_path
 
 
+current_directory = os.path.dirname(__file__)
+
 title = "Demo: zero-shot depth estimation with DPT + 3D Point Cloud"
 description = "This demo is a variation from the original <a href='https://huggingface.co/spaces/nielsr/dpt-depth-estimation' target='_blank'>DPT Demo</a>. It uses the DPT model to predict the depth of an image and then uses 3D Point Cloud to create a 3D object."
-# examples = [["examples/" + img] for img in os.listdir("examples/")]
+#examples = [["examples/" + img] for img in os.listdir("examples/")]
 
+result_image_path = os.path.join(current_directory, '..', 'result.png')
+image_path = Path(result_image_path)
+
+
+# Load the image
+rawimage = Image.open(image_path)
+image_r = gr.Image(value=rawimage, type="pil", label="Input Image")
+#image_r.change(create_visual_demo, [],[])
+ 
 def create_visual_demo():
   iface = gr.Interface(fn=process_image,
-                      inputs=[gr.Image(
-                          type="filepath", label="Input Image")],
-                      outputs=[gr.Image(label="predicted depth", type="pil"),
-                                gr.Model3D(label="3d mesh reconstruction", clear_color=[
-                                                  1.0, 1.0, 1.0, 1.0]),
-                                gr.File(label="3d gLTF")],
-                      title=title,
-                      description=description,
-                      # examples=examples,
-                      allow_flagging="never",
-                      cache_examples=False)
+    inputs=[gr.Image(
+        type="filepath", label="Input Image", value=image_path)],
+    outputs=[gr.Image(label="predicted depth", type="pil"),
+              gr.Model3D(label="3d mesh reconstruction", clear_color=[
+                                1.0, 1.0, 1.0, 1.0]),
+              gr.File(label="3d gLTF")],
+    title=title,
+    description=description,
+    #examples=examples,
+    live=True,
+    allow_flagging="never",
+    cache_examples=False)  
+
 #iface.launch(debug=True, enable_queue=False, share=True)
