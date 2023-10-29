@@ -11,7 +11,7 @@ from PIL import Image
 
 from app_train import create_training_demo
 from sdxl.app_inference import create_inference_demo
-from depthgltf.app_visualisation import create_visual_demo 
+from depthgltf.app_visualisations import create_visual_demo 
 
 from transformers import DPTFeatureExtractor, DPTForDepthEstimation
 import numpy as np
