@@ -254,7 +254,7 @@ def create_inference_demo() -> gr.Blocks:
 
           use_custom_model = gr.Checkbox(label="Use a custom pre-trained LoRa model ? (optional)", value=False, info="To use a private model, you'll need to duplicate the space with your own access token.")
           
-          with gr.Box(visible=False) as custom_model_box:
+          with gr.Blocks(visible=False) as custom_model_box:
               with gr.Row():
                   with gr.Column():
                       if not is_shared_ui:
@@ -297,7 +297,7 @@ def create_inference_demo() -> gr.Blocks:
                           )
                       trigger_word = gr.Textbox(label="Trigger word", interactive=False, visible=False)
           
-          image_in = gr.Image(source="upload", type="filepath")
+          image_in = gr.Image(sources="upload", type="filepath")
           
           with gr.Row():
               
