@@ -139,15 +139,15 @@ theme = gr.themes.Soft(
 
 
 with gr.Blocks(theme=theme, css=css) as demo:
-
-    gr.Markdown("SUTD x SUNS Shop Design Generator")
+    gr.Markdown("# SUTD x SUNS Shop Design Generator for Designers")
+    gr.Markdown("Train, Use and Visualise in 2.5D")
     with gr.Tab("Training"):
          create_training_demo()
     with gr.Tab("Generation"):
         create_inference_demo()
        
         #create_visual_demo(); 
-    with gr.Tab("Visualisation"):
+    with gr.Tab("2.5D Depth"):
         create_visual_demo(); 
 
 

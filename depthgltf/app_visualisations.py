@@ -49,7 +49,7 @@ def process_image(image_path):
         raise Exception("Error reconstructing 3D model")
 
 
-def create_3d_obj(rgb_image, depth_image, image_path, depth=10):
+def create_3d_obj(rgb_image, depth_image, image_path, depth=5):
     depth_o3d = o3d.geometry.Image(depth_image)
     image_o3d = o3d.geometry.Image(rgb_image)
     rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(
@@ -102,8 +102,8 @@ def create_3d_obj(rgb_image, depth_image, image_path, depth=10):
 
 current_directory = os.path.dirname(__file__)
 
-title = "Demo: zero-shot depth estimation with DPT + 3D Point Cloud"
-description = "This demo is a variation from the original <a href='https://huggingface.co/spaces/nielsr/dpt-depth-estimation' target='_blank'>DPT Demo</a>. It uses the DPT model to predict the depth of an image and then uses 3D Point Cloud to create a 3D object."
+title = "2.5D GLTF Generation "
+description = "Zero-shot depth estimation with DPT + 3D Point Cloud. It uses the DPT model to predict the depth of an image and then uses 3D Point Cloud to create a 3D object."
 #examples = [["examples/" + img] for img in os.listdir("examples/")]
 
 # result_image_path = os.path.join(current_directory, '..', 'result.png')
@@ -172,8 +172,8 @@ def create_visual_demo():
     inputs=[gr.Image(
         type="filepath", label="Input Image")],
     outputs=[gr.Image(label="predicted depth", type="pil"),
-              gr.Model3D(label="3d mesh reconstruction", clear_color=[
-                                1.0, 1.0, 1.0, 1.0]),
+              # gr.Model3D(label="3d mesh reconstruction", clear_color=[
+              #                   1.0, 1.0, 1.0, 1.0]),
               gr.File(label="3d gLTF")],
     title=title,
     theme=theme,

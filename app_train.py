@@ -359,32 +359,8 @@ def create_training_demo() -> gr.Blocks:
                     </p>
                 </div>
             ''', elem_id="warning-duplicate")
-        # else:
-        #     if(is_gpu_associated):
-        #         top_description = gr.HTML(f'''
-        #                 <div class="gr-prose">
-        #                     <h2><svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" style="margin-right: 0px;display: inline-block;"fill="none"><path fill="#fff" d="M7 13.2a6.3 6.3 0 0 0 4.4-10.7A6.3 6.3 0 0 0 .6 6.9 6.3 6.3 0 0 0 7 13.2Z"/><path fill="#fff" fill-rule="evenodd" d="M7 0a6.9 6.9 0 0 1 4.8 11.8A6.9 6.9 0 0 1 0 7 6.9 6.9 0 0 1 7 0Zm0 0v.7V0ZM0 7h.6H0Zm7 6.8v-.6.6ZM13.7 7h-.6.6ZM9.1 1.7c-.7-.3-1.4-.4-2.2-.4a5.6 5.6 0 0 0-4 1.6 5.6 5.6 0 0 0-1.6 4 5.6 5.6 0 0 0 1.6 4 5.6 5.6 0 0 0 4 1.7 5.6 5.6 0 0 0 4-1.7 5.6 5.6 0 0 0 1.7-4 5.6 5.6 0 0 0-1.7-4c-.5-.5-1.1-.9-1.8-1.2Z" clip-rule="evenodd"/><path fill="#000" fill-rule="evenodd" d="M7 2.9a.8.8 0 1 1 0 1.5A.8.8 0 0 1 7 3ZM5.8 5.7c0-.4.3-.6.6-.6h.7c.3 0 .6.2.6.6v3.7h.5a.6.6 0 0 1 0 1.3H6a.6.6 0 0 1 0-1.3h.4v-3a.6.6 0 0 1-.6-.7Z" clip-rule="evenodd"/></svg>
-        #                     You have successfully associated a {which_gpu} GPU to the SD-XL Training Space 🎉</h2>
-        #                     <p>
-        #                         You can now train your model! You will be billed by the minute from when you activated the GPU until when it is turned off.
-        #                     </p> 
-        #                 </div>
-        #         ''', elem_id="warning-ready")
-        #     else:
-        #         top_description = gr.HTML(f'''
-        #                 <div class="gr-prose">
-        #                 <h2><svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" style="margin-right: 0px;display: inline-block;"fill="none"><path fill="#fff" d="M7 13.2a6.3 6.3 0 0 0 4.4-10.7A6.3 6.3 0 0 0 .6 6.9 6.3 6.3 0 0 0 7 13.2Z"/><path fill="#fff" fill-rule="evenodd" d="M7 0a6.9 6.9 0 0 1 4.8 11.8A6.9 6.9 0 0 1 0 7 6.9 6.9 0 0 1 7 0Zm0 0v.7V0ZM0 7h.6H0Zm7 6.8v-.6.6ZM13.7 7h-.6.6ZM9.1 1.7c-.7-.3-1.4-.4-2.2-.4a5.6 5.6 0 0 0-4 1.6 5.6 5.6 0 0 0-1.6 4 5.6 5.6 0 0 0 1.6 4 5.6 5.6 0 0 0 4 1.7 5.6 5.6 0 0 0 4-1.7 5.6 5.6 0 0 0 1.7-4 5.6 5.6 0 0 0-1.7-4c-.5-.5-1.1-.9-1.8-1.2Z" clip-rule="evenodd"/><path fill="#000" fill-rule="evenodd" d="M7 2.9a.8.8 0 1 1 0 1.5A.8.8 0 0 1 7 3ZM5.8 5.7c0-.4.3-.6.6-.6h.7c.3 0 .6.2.6.6v3.7h.5a.6.6 0 0 1 0 1.3H6a.6.6 0 0 1 0-1.3h.4v-3a.6.6 0 0 1-.6-.7Z" clip-rule="evenodd"/></svg>
-        #                 You have successfully duplicated the SD-XL Training Space 🎉</h2>
-        #                 <p>There's only one step left before you can train your model: <a href="https://huggingface.co/spaces/{os.environ['SPACE_ID']}/settings" style="text-decoration: underline" target="_blank">attribute a <b>T4-small or A10G-small GPU</b> to it (via the Settings tab)</a> and run the training below.
-        #                 You will be billed by the minute from when you activate the GPU until when it is turned off.</p> 
-        #                 <p class="actions">
-        #                     <a href="https://huggingface.co/spaces/ClaireOzzz/train-dreambooth-lora-sdxl/settings">🔥 &nbsp; Set recommended GPU</a>
-        #                 </p>
-        #                 </div>
-        #         ''', elem_id="warning-setgpu")
         
-        gr.Markdown("# SD-XL Dreambooth LoRa Training UI 💭")
-        
+        gr.Markdown("## Upload your Dataset ")
         upload_my_images = gr.Checkbox(label="Drop your training images ? (optional)", value=False)
         gr.Markdown("Use this step to upload your training images and create a new dataset. If you already have a dataset stored on your HF profile, you can skip this step, and provide your dataset ID in the training `Datased ID` input below.")
          
@@ -397,7 +373,7 @@ def create_training_demo() -> gr.Blocks:
                     load_btn = gr.Button("Load images to new dataset", elem_id="load-dataset-btn")
         
         gr.Markdown("## Training ")
-        gr.Markdown("You can use an existing image dataset, find a dataset example here: [https://huggingface.co/datasets/diffusers/dog-example](https://huggingface.co/datasets/diffusers/dog-example) ;)")
+        gr.Markdown("This trains a SD-XL Dreambooth LoRa Model. You can use an existing image dataset")
         
         with gr.Row():
             dataset_id = gr.Textbox(label="Dataset ID", info="use one of your previously uploaded image datasets on your HF profile", placeholder="diffusers/dog-example")

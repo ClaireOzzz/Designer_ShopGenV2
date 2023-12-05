@@ -288,24 +288,15 @@ def create_inference_demo() -> gr.Blocks:
                   <div class="gr-prose">
                       <h2><svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" style="margin-right: 0px;display: inline-block;"fill="none"><path fill="#fff" d="M7 13.2a6.3 6.3 0 0 0 4.4-10.7A6.3 6.3 0 0 0 .6 6.9 6.3 6.3 0 0 0 7 13.2Z"/><path fill="#fff" fill-rule="evenodd" d="M7 0a6.9 6.9 0 0 1 4.8 11.8A6.9 6.9 0 0 1 0 7 6.9 6.9 0 0 1 7 0Zm0 0v.7V0ZM0 7h.6H0Zm7 6.8v-.6.6ZM13.7 7h-.6.6ZM9.1 1.7c-.7-.3-1.4-.4-2.2-.4a5.6 5.6 0 0 0-4 1.6 5.6 5.6 0 0 0-1.6 4 5.6 5.6 0 0 0 1.6 4 5.6 5.6 0 0 0 4 1.7 5.6 5.6 0 0 0 4-1.7 5.6 5.6 0 0 0 1.7-4 5.6 5.6 0 0 0-1.7-4c-.5-.5-1.1-.9-1.8-1.2Z" clip-rule="evenodd"/><path fill="#000" fill-rule="evenodd" d="M7 2.9a.8.8 0 1 1 0 1.5A.8.8 0 0 1 7 3ZM5.8 5.7c0-.4.3-.6.6-.6h.7c.3 0 .6.2.6.6v3.7h.5a.6.6 0 0 1 0 1.3H6a.6.6 0 0 1 0-1.3h.4v-3a.6.6 0 0 1-.6-.7Z" clip-rule="evenodd"/></svg>
                       Note: you might want to use a <strong>private</strong> custom LoRa model</h2>
-                      <p class="main-message">
-                          To do so, <strong>duplicate the Space</strong> and run it on your own profile using <strong>your own access token</strong> and eventually a GPU (T4-small or A10G-small) for faster inference without waiting in the queue.<br />
-                      </p>
-                      <p class="actions">
-                          <a href="https://huggingface.co/spaces/{os.environ['SPACE_ID']}?duplicate=true">
-                              <img src="https://huggingface.co/datasets/huggingface/badges/resolve/main/duplicate-this-space-lg-dark.svg" alt="Duplicate this Space" />
-                          </a>
-                          to start using private models and skip the queue
-                      </p>
                   </div>
               ''', elem_id="warning-duplicate")
           gr.HTML("""
-  <h2 style="text-align: center;">SD-XL Control LoRas</h2>
-  <p style="text-align: center;">Use StableDiffusion XL with <a href="https://huggingface.co/collections/diffusers/sdxl-controlnets-64f9c35846f3f06f5abe351f">Diffusers' SDXL ControlNets</a></p>
+  <h2 style="text-align: center;">Image Generation</h2>
+  <p style="text-align: center;">SD-XL Control LoRas. Use StableDiffusion XL with <a href="https://huggingface.co/collections/diffusers/sdxl-controlnets-64f9c35846f3f06f5abe351f">Diffusers' SDXL ControlNets</a></p>
 
           """)
 
-          use_custom_model = gr.Checkbox(label="Use a custom pre-trained LoRa model ? (optional)", value=False, info="To use a private model, you'll need to duplicate the space with your own access token.")
+          use_custom_model = gr.Checkbox(visible=False, label="Use a custom pre-trained LoRa model ? (optional)", value=False, info="To use a private model, you'll need to duplicate the space with your own access token.")
           
           with gr.Blocks(visible=False) as custom_model_box:
               with gr.Row():
@@ -359,14 +350,14 @@ def create_inference_demo() -> gr.Blocks:
                       prompt = gr.Textbox(label="Prompt")
                       negative_prompt = gr.Textbox(label="Negative prompt", value="extra digit, fewer digits, cropped, worst quality, low quality, glitch, deformed, mutated, ugly, disfigured")
                   with gr.Group():
-                      guidance_scale = gr.Slider(label="Guidance Scale", minimum=1.0, maximum=10.0, step=0.1, value=7.5)
+                      guidance_scale = gr.Slider(label="Guidance Scale", minimum=1.0, maximum=10.0, step=0.1, value=8.8)
                       inf_steps = gr.Slider(label="Inference Steps", minimum="25", maximum="50", step=1, value=25)
-                      custom_lora_weight = gr.Slider(label="Custom model weights", minimum=0.1, maximum=0.9, step=0.1, value=0.9)
+                      custom_lora_weight = gr.Slider(label="Custom model weights", minimum=0.1, maximum=0.9, step=0.1, value=0.7)
 
               with gr.Column():
                   with gr.Group():
                       preprocessor = gr.Dropdown(label="Preprocessor", choices=["canny"], value="canny", interactive=False, info="For the moment, only canny is available")  
-                      controlnet_conditioning_scale = gr.Slider(label="Controlnet conditioning Scale", minimum=0.1, maximum=0.9, step=0.01, value=0.5)
+                      controlnet_conditioning_scale = gr.Slider(label="Controlnet conditioning Scale", minimum=0.1, maximum=0.9, step=0.01, value=0.3)
                   with gr.Group():
                       seed = gr.Slider(
                           label="Seed",
