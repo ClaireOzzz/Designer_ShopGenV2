@@ -12,6 +12,7 @@ from PIL import Image
 from app_train import create_training_demo
 from sdxl.app_inference import create_inference_demo
 from depthgltf.app_visualisations import create_visual_demo 
+from inpaint.app_inpaint import create_inpaint_demo
 
 from transformers import DPTFeatureExtractor, DPTForDepthEstimation
 import numpy as np
@@ -100,7 +101,7 @@ theme = gr.themes.Soft(
     link_text_color_active_dark='*secondary_600',
     link_text_color_hover_dark='*secondary_700',
     link_text_color_visited_dark='*secondary_500',
-    code_background_fill_dark='*neutral_100',
+    # code_background_fill_dark='*neutral_100',
     shadow_spread_dark='6px',
     block_background_fill_dark='white',
     block_label_background_fill_dark='*primary_100',
@@ -137,7 +138,6 @@ theme = gr.themes.Soft(
     button_secondary_text_color_dark='*neutral_800'
 )
 
-
 with gr.Blocks(theme=theme, css=css) as demo:
     gr.Markdown("# SUTD x SUNS Shop Design Generator for Designers")
     gr.Markdown("Train, Use and Visualise in 2.5D")
@@ -145,11 +145,9 @@ with gr.Blocks(theme=theme, css=css) as demo:
          create_training_demo()
     with gr.Tab("Generation"):
         create_inference_demo()
-       
-        #create_visual_demo(); 
-    with gr.Tab("2.5D Depth"):
+    with gr.Tab("Edit Image"):
+      create_inpaint_demo()
+    with gr.Tab("Visualisation"):
         create_visual_demo(); 
-
-
 demo.queue().launch(debug=True, share=True)
 
