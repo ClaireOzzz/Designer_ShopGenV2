@@ -362,7 +362,7 @@ def create_training_demo() -> gr.Blocks:
         
         gr.Markdown("## Upload your Dataset ")
         upload_my_images = gr.Checkbox(label="Drop your training images ? (optional)", value=False)
-        gr.Markdown("Use this step to upload your training images and create a new dataset. If you already have a dataset stored on your HF profile, you can skip this step, and provide your dataset ID in the training `Datased ID` input below.")
+        gr.Markdown("Use this step to upload your training images and create a new dataset. If you already have a dataset stored on your HF profile, you can skip this step, and provide your dataset ID in the training input below.")
          
         with gr.Group(visible=False, elem_id="upl-dataset-group") as upload_group:
             with gr.Row():
